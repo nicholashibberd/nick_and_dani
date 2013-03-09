@@ -13,8 +13,9 @@ function start(route) {
 		response.write("Hello World!!! \n");
 		response.end();
 	}
+	var port = process.env.PORT || 5000;
 
-	http.createServer(onRequest).listen(51191);
+	http.createServer(onRequest).listen(port);
 	console.log('Server has started..')
 }
 
