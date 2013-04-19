@@ -3,6 +3,7 @@
 (function() {
 	"use strict";
 
+	desc("Build and test");
 	task("default", ["lint"]);
 
 	desc("Lint everything");
@@ -14,7 +15,13 @@
 		files.include("Jakefile");
 		files.exclude("node_modules");
 		files.exclude("build");
-		lint.validateFileList(files.toArray(), nodeLintOptions(), {});
+		var passed = lint.validateFileList(files.toArray(), nodeLintOptions(), {});
+		if (!passed) fail("Lint failed!");
+	});
+
+	desc("Integrate");
+	task("integrate", ["default"], function() {
+		console.log('Integration logic goes here');
 	});
 
 	function nodeLintOptions() {
