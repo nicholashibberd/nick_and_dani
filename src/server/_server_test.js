@@ -3,21 +3,18 @@
 var server = require("./server.js");
 var http = require('http');
 
+exports.setUp = function(done) {
+	server.start(8080);
+	done();
+};
+
 exports.tearDown = function(done) {
 	server.stop(function() {
 		done();
 	});
 };
 
-exports.test_serverRespondsToGetRequests = function(test) {
-	server.start();
-	http.get('http://localhost:8080', function(response) {
-		test.done();
-	});
-};
-
 exports.test_serverRespondsToHelloWorld = function(test) {
-	server.start();
 	var request = http.get('http://localhost:8080');
 	request.on('response', function(response) {
 		var receivedData = false;
@@ -32,4 +29,11 @@ exports.test_serverRespondsToHelloWorld = function(test) {
 			test.done();
 		});
 	});
+};
+
+exports.test_ServerRunsCallBackWhenStopCompletes = function(test) {
+	server.stop(function() {
+		test.done();
+	});
+	server.start();
 };
