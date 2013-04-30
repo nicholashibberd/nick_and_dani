@@ -23,6 +23,13 @@ exports.test_serverRespondsToHelloWorld = function(test) {
 	});
 };
 
+exports.test_serverRequiresPortNumber = function(test) {
+	test.throws(function() {
+		server.start();
+	});
+	test.done();
+};
+
 exports.test_ServerRunsCallBackWhenStopCompletes = function(test) {
 	server.start(8080);
 	server.stop(function() {
