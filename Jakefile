@@ -4,9 +4,15 @@
 	"use strict";
 
 	var NODE_VERSION = "v0.8.23";
-	var TEMP_TESTFILE_DIR = "generated/test";
+	var GENERATED_DIR = "generated";
+	var TEMP_TESTFILE_DIR = GENERATED_DIR + "/test";
 
 	directory(TEMP_TESTFILE_DIR);
+
+	desc("Delete all generated file");
+	task("clean", [], function() {
+		jake.rmRf(GENERATED_DIR);
+	});
 
 	desc("Build and test");
 	task("default", ["lint", "test"]);
