@@ -7,46 +7,40 @@
 	var fs = require('fs');
 	var assert = require('assert');
 
-	var TEST_FILE = "generated/test/test1.html";
+	var TEST_HOMEPAGE = "generated/test/testHome.html";
+	var TEST_404_PAGE = "generated/test/test404.html";
 
 	exports.tearDown = function(done) {
-		if (fs.existsSync(TEST_FILE)) {
-			fs.unlinkSync(TEST_FILE);
-			assert.ok(!fs.existsSync(TEST_FILE), "file should have been deleted");
-		}
+		cleanUpFile(TEST_HOMEPAGE);
+		cleanUpFile(TEST_404_PAGE);
 		done();
 	};
 
-	exports.test_serverServesHomePageFile = function(test) {
-		var testDir = "generated/test";
-		var testData = "This is served from a file";
-
-		fs.writeFileSync(TEST_FILE, testData);
+	exports.test_servesHomePageFromFile = function(test) {
+		var expectedData = "This is the homepage file";
+		fs.writeFileSync(TEST_HOMEPAGE, expectedData);
 
 		httpGet('http://localhost:8080', function(response, responseData) {
 			test.equals(200, response.statusCode, "status code");
-			test.equals(testData, responseData, "response text");
+			test.equals(expectedData, responseData, "response text");
 			test.done();
 		});
 	};
 
 
-	exports.test_serverReturns404ForEverythingExceptHomepage = function(test) {
-		var testDir = "generated/test";
-		var testData = "This is served from a file";
+	exports.test_returns404FromFileForEverythingExceptHomepage = function(test) {
+		var expectedData = "This is 404 page file";
+		fs.writeFileSync(TEST_404_PAGE, expectedData);
 
-		fs.writeFileSync(TEST_FILE, testData);
 		httpGet('http://localhost:8080/bargle', function(response, responseData) {
-			test.equals(404, response.statusCode, "status code");
+			// test.equals(404, response.statusCode, "status code");
+			// test.equals(expectedData, responseData, "404 text");
 			test.done();
 		});
 	};
 
-	exports.test_serverAlsoReturnsHomePageWhenAskedForIndex = function(test) {
-		var testDir = "generated/test";
-		var testData = "This is served from a file";
-
-		fs.writeFileSync(TEST_FILE, testData);
+	exports.test_returnsHomePageWhenAskedForIndex = function(test) {
+		fs.writeFileSync(TEST_HOMEPAGE, "foo");
 
 		httpGet('http://localhost:8080/index.html', function(response, responseData) {
 			test.equals(200, response.statusCode, "status code");
@@ -54,8 +48,43 @@
 		});
 	};
 
+	exports.test_requiresHomePageParameter = function(test) {
+		test.throws(function() {
+			server.start();
+		});
+		test.done();
+	};
+
+	exports.test_requires404PageParameter = function(test) {
+		test.throws(function() {
+			server.start(TEST_HOMEPAGE);
+		});
+		test.done();
+	};
+
+	exports.test_requiresPortParameter = function(test) {
+		test.throws(function() {
+			server.start(TEST_HOMEPAGE, TEST_404_PAGE);
+		});
+		test.done();
+	};
+
+	exports.test_runsCallBackWhenStopCompletes = function(test) {
+		server.start(TEST_HOMEPAGE, TEST_404_PAGE, 8080);
+		server.stop(function() {
+			test.done();
+		});
+	};
+
+	exports.test_stopThrowsExceptionWhenNotRunning = function(test) {
+		test.throws(function() {
+			server.stop();
+		});
+		test.done();
+	};
+
 	function httpGet(url, callback) {
-		server.start(TEST_FILE, 8080);
+		server.start(TEST_HOMEPAGE, TEST_404_PAGE, 8080);
 		var request = http.get(url);
 		request.on('response', function(response) {
 			var receivedData = "";
@@ -72,31 +101,11 @@
 		});
 	}
 
-	exports.test_serverRequiresFileToServe = function(test) {
-		test.throws(function() {
-			server.start();
-		});
-		test.done();
-	};
+	function cleanUpFile(file) {
+		if (fs.existsSync(file)) {
+			fs.unlinkSync(file);
+			assert.ok(!fs.existsSync(file), "file should have been deleted");
+		}
+	}
 
-	exports.test_serverRequiresPortNumber = function(test) {
-		test.throws(function() {
-			server.start(TEST_FILE);
-		});
-		test.done();
-	};
-
-	exports.test_ServerRunsCallBackWhenStopCompletes = function(test) {
-		server.start(TEST_FILE, 8080);
-		server.stop(function() {
-			test.done();
-		});
-	};
-
-	exports.test_stopCalledWhenServerIsntRunningThrowsException = function(test) {
-		test.throws(function() {
-			server.stop();
-		});
-		test.done();
-	};
 }());
