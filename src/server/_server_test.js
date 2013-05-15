@@ -1,6 +1,5 @@
-"use strict";
-
 (function() {
+	"use strict";
 
 	var server = require("./server.js");
 	var http = require('http');
@@ -33,8 +32,8 @@
 		fs.writeFileSync(TEST_404_PAGE, expectedData);
 
 		httpGet('http://localhost:8080/bargle', function(response, responseData) {
-			// test.equals(404, response.statusCode, "status code");
-			// test.equals(expectedData, responseData, "404 text");
+			test.equals(404, response.statusCode, "status code");
+			test.equals(expectedData, responseData, "404 text");
 			test.done();
 		});
 	};
@@ -84,18 +83,19 @@
 	};
 
 	function httpGet(url, callback) {
-		server.start(TEST_HOMEPAGE, TEST_404_PAGE, 8080);
-		var request = http.get(url);
-		request.on('response', function(response) {
-			var receivedData = "";
-			response.setEncoding("utf8");
+		server.start(TEST_HOMEPAGE, TEST_404_PAGE, 8080, function() {
+			var request = http.get(url);
+			request.on('response', function(response) {
+				var receivedData = "";
+				response.setEncoding("utf8");
 
-			response.on('data', function(chunk) {
-				receivedData += chunk;
-			});
-			response.on('end', function() {
-				server.stop(function() {
-					callback(response, receivedData);
+				response.on('data', function(chunk) {
+					receivedData += chunk;
+				});
+				response.on('end', function() {
+					server.stop(function() {
+						callback(response, receivedData);
+					});
 				});
 			});
 		});
