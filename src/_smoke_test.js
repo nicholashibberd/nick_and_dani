@@ -5,6 +5,7 @@
 	var http = require('http');
 	var child;
 	var fs = require('fs');
+	var procfile = require('procfile');
 
 	exports.setUp = function(done) {
 		runServer(done);
@@ -35,7 +36,7 @@
 
 	function runServer(callback) {
 		var commandLine = parseProcfile();
-		child = child_process.spawn(commandLine[0], commandLine.slice(1));
+		child = child_process.spawn(commandLine.command, commandLine.options);
 		child.stdout.setEncoding("utf8");
 		child.stdout.on("data", function(chunk) {
 			if (chunk.trim().indexOf("Server started") !== -1) callback();
@@ -43,21 +44,13 @@
 	}
 
 	function parseProcfile() {
-		var procfile = fs.readFileSync('Procfile', "utf8");
-		var matches = procfile.trim().match(/^web:(.+)$/);
-		if (matches === null) throw "Could not parse Procfile";
-		var commandLine = matches[1];
-
-		var args = commandLine.split(' ');
-		args = args.filter(function(element) {
-			return (element.trim() !== "");
-		});
-		args = args.map(function(element) {
+		var fileData = fs.readFileSync('Procfile', "utf8");
+		var webCommand = procfile.parse(fileData).web;
+		webCommand.options = webCommand.options.map(function(element) {
 			if (element === "$PORT") return "5000";
 			else return element;
 		});
-
-		return args;
+		return webCommand;
 	}
 
 	function httpGet(url, callback) {
