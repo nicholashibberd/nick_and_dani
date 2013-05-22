@@ -26,15 +26,21 @@
 		javascriptFiles.include("Jakefile");
 		javascriptFiles.exclude("node_modules");
 		javascriptFiles.exclude("build");
+		javascriptFiles.exclude("karma.conf.js");
 		var passed = lint.validateFileList(javascriptFiles.toArray(), nodeLintOptions(), {});
 		if (!passed) fail("Lint failed!");
 	});
 
 	desc("Test everything");
-	task("test", ["nodeVersion", TEMP_TESTFILE_DIR], function() {
+	task("test", ["testServer", "testClient"]);
+
+	desc("Test server code");
+	task("testServer", ["nodeVersion", TEMP_TESTFILE_DIR], function() {
 		var testFiles = new jake.FileList();
 		testFiles.include("**/_*_test.js");
 		testFiles.exclude("node_modules");
+		testFiles.exclude("src/client/**");
+		testFiles.exclude("src/server/_release_test.js");
 
 		var reporter = require("nodeunit").reporters["default"];
 		reporter.run(testFiles.toArray(), null, function(failures) {
@@ -43,10 +49,29 @@
 		});
 	}, {async: true});
 
+	desc("Test live site");
+	task("testLiveSite", [], function() {
+		var testFiles = new jake.FileList();
+		testFiles.include("src/server/_release_test.js");
+
+		var reporter = require("nodeunit").reporters["default"];
+		reporter.run(testFiles.toArray(), null, function(failures) {
+			if (failures) fail("Tests failed");
+			complete();
+		});
+	}, {async: true});
+
+	desc("Test client code");
+	task("testClient", function() {
+		var config = {};
+		require('karma/lib/runner').run(config);
+	});
+
 	desc("Integrate");
 	task("integrate", ["default"], function() {
 		console.log('Integration logic goes here');
 	});
+
 
 	// desc("Ensure correct version of node");
 	task("nodeVersion", [], function() {
