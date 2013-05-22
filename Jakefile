@@ -63,9 +63,8 @@
 
 	desc("Test client code");
 	task("testClient", function() {
-		var config = {};
-		require('karma/lib/runner').run(config);
-	});
+		sh("node node_modules/.bin/karma run", "Client tests failed", complete);
+	}, {async: true});
 
 	desc("Integrate");
 	task("integrate", ["default"], function() {
@@ -99,17 +98,18 @@
 	});
 
 
-	function sh(command, callback) {
+	function sh(command, errorMessage, callback) {
 		console.log("> " + command);
 
 		var stdout = "";
 		var process = jake.createExec(command, {printStdout: true, printStderr: true});
 		process.on("stdout", function(chunk) {
-			console.log('stdout');
 			stdout += chunk;
 		});
+		process.on("error", function(chunk) {
+			fail(errorMessage);
+		});
 		process.on("cmdEnd", function() {
-			console.log('cmdout');
 			callback(stdout);
 		});
 		process.run();
