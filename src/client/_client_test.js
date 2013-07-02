@@ -1,11 +1,12 @@
-/*global describe, expect, it */
+/*global describe, expect, it, dump */
 
 (function() {
 	"use strict";
 
 	describe("Nothing", function() {
 		it("should run", function() {
-			expect('foo').to.equal('foo');
+			dump(document.body);
+			// expect('foo').to.equal('foo');
 		});
 	});
 

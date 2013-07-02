@@ -57,13 +57,21 @@
 
 	desc("Test client code");
 	task("testClient", function() {
-		sh("node node_modules/.bin/karma run", "Client tests failed", function() {
-			assertBrowserIsTested("IE 8.0", "output");
+		sh("node node_modules/.bin/karma run", "Client tests failed", function(output) {
+			// var SUPPORTED_BROWSERS = ["Chrome 27.0 (Mac)", "Safari 5.1 (Mac)"];
+			var SUPPORTED_BROWSERS = ["Chrome 27.0 (Mac)"];
+			console.log(output);
+			SUPPORTED_BROWSERS.forEach(function(browser) {
+				assertBrowserIsTested(browser, output);
+			});
 		});
 	}, {async: true});
 
 	function assertBrowserIsTested(browserName, output) {
-		fail(browserName + " was not tested");
+		var searchString = browserName + ": Executed";
+		var found = output.indexOf(searchString) !== -1;
+		if (!found) fail(browserName + " was not tested");
+		else console.log("Confirmed: " + browserName);
 	}
 
 	desc("Integrate");
