@@ -5,8 +5,8 @@
 
 	describe("Nothing", function() {
 		it("should run", function() {
-			dump(document.body);
-			// expect('foo').to.equal('foo');
+			var extractedDiv = document.getElementById("tdjs");
+			expect(extractedDiv.getAttribute("foo")).to.equal("bar");
 		});
 	});
 

@@ -140,6 +140,7 @@
 		javascriptFiles.include("Jakefile");
 		javascriptFiles.exclude("node_modules");
 		javascriptFiles.exclude("build");
+		javascriptFiles.exclude("vendor_client");
 		javascriptFiles.exclude("karma.conf.js");
 		javascriptFiles.exclude("src/client");
 		return javascriptFiles.toArray();
