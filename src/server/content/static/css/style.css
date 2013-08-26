@@ -1,0 +1,19 @@
+body {
+  font-family: 'Pompiere', Arial;
+  color: #3E3F3D;
+}
+
+#wrapper {
+  margin: auto;
+  width: 960px;
+  padding-top: 200px;
+  text-align: center
+}
+
+#logo {
+  margin-left: 15px;
+}
+
+p { font-size: 22px;}
+
+p#date { font-size: 30px; margin-top: 30px;}
